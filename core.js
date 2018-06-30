@@ -340,16 +340,20 @@ app.post('/screenshot', async (req, res) => {
   const { content } = req.body;
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
+  page.setViewport({
+    width: 1200,
+    height: 4400
+  })
   await page.goto('http://www.baidu.com');
   await page.evaluate(`
       document.querySelectorAll('.highcharts-credits').forEach(item => item.style.display = 'none');
       document.body.innerHTML = \`${content}\`
     `);
-  await page.pdf({
-    path: 'report.pdf',
-    format: 'letter'
-  });
-
+  // await page.pdf({
+  //   path: 'report.pdf',
+  //   format: 'letter'
+  // });
+  await page.screenshot({path: 'report.png'});
   await browser.close();
 
   res.status(200).json({
@@ -361,9 +365,9 @@ app.post('/screenshot', async (req, res) => {
 app.get('/download', (req, res) => {
   res.set({
     "Content-type":"application/octet-stream",
-    "Content-Disposition":"attachment;filename=report.pdf"
+    "Content-Disposition":"attachment;filename=report.png"
   });
-  const filestream = fs.createReadStream('./report.pdf');
+  const filestream = fs.createReadStream('./report.png');
     filestream.on('data', function(chunk) {
       res.write(chunk);
     });
