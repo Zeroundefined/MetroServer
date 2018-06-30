@@ -130,15 +130,15 @@ app.get('/getData', (req, res) => {
 })
 
 app.get('/getCalcData', (req, res) => {
-  if(!checkAuth(req, res)) {
-    res.status(200).json({
-      data: null,
-      code: 401,
-      errMsg: "登录过期"
-    })
+  // if(!checkAuth(req, res)) {
+  //   res.status(200).json({
+  //     data: null,
+  //     code: 401,
+  //     errMsg: "登录过期"
+  //   })
 
-    return
-  }
+  //   return
+  // }
   const { timeRange } = req.query;
   const range = timeRange.split(',');
   const length = (new Date(range[1]) - new Date(range[0])) / 3600 / 24 / 1000;
@@ -150,138 +150,120 @@ app.get('/getCalcData', (req, res) => {
     polling: {}
   };
 
+  
+
+  // const p2 = new Promise((resolve, reject) => {
+  //   mysql.connection.query(`select 
+  //   hour, sum(line1) line1, sum(line2) line2, sum(line3) line3, sum(line4) line4, sum(line5) line5, sum(line6) line6, sum(line7) line7, sum(line8) line8, sum(line9) line9, sum(line10) line10, sum(line11) line11, sum(line12) line12, sum(line13) line13, sum(line14) line14, sum(line15) line15, sum(line16) line16, sum(line17) line17
+  //   from breakdown_facility_result where (datelabel between '${range[0]}' and '${range[1]}') group by hour`, (err, data) => {
+  //       if (err) {
+  //         reject()
+  //         res.status(200).json({
+  //           data: null,
+  //           errMsg: "故障信息计算出错"
+  //         })
+  //       } else {
+  //         final.fault.hourDivided = data.map(row => {
+  //           const spittingInfo = Object.values(row);
+  //           return {
+  //             key: spittingInfo[0],
+  //             value: lodash.reduce(spittingInfo.slice(1), (sum, n) => {
+  //               return sum + n;
+  //             }, 0)
+  //           }
+  //         });
+  //         final.fault.lineDivided = lodash.find(data, { hour: '全天' });
+  //         resolve();
+  //       }
+  //     })
+  // })
+
+  // const p3 = new Promise((resolve, reject) => {
+  //   mysql.connection.query(`select 
+  //   sum(construction_reach_ratio)/${length} reachRatio, sum(construction_hour_ratio)/${length} hourRatio, sum(construction_update_ratio)/${length} updateRatio, sum(construction_illegal) illegal, 
+  //   sum(line1) line1, sum(line2) line2, sum(line3) line3, sum(line4) line4, sum(line5) line5, sum(line6) line6, sum(line7) line7, sum(line8) line8, sum(line9) line9, sum(line10) line10, sum(line11) line11, sum(line12) line12, sum(line13) line13, sum(line14) line14, sum(line15) line15, sum(line16) line16, sum(line17) line17
+  //   from construction_information_result where (datelabel between '${range[0]}' and '${range[1]}') and hour = '全天'`, (err, data) => {
+  //       if (err) {
+  //         reject()
+  //         res.status(200).json({
+  //           data: null,
+  //           errMsg: "施工信息计算出错"
+  //         })
+  //       } else {
+  //         const info = Object.entries(data[0]);
+  //         final.working.reachRatio = info[0][1];
+  //         final.working.hourRatio = info[1][1];
+  //         final.working.updateRatio = info[2][1];
+  //         final.working.illegal = info[3][1];
+  //         final.working.lineDivided = info.slice(4);
+  //         resolve();
+  //       }
+  //     })
+  // })
+
+  // const p4 = new Promise((resolve, reject) => {
+  //   mysql.connection.query(`select hour, sum(construction_num) constructionNum
+  //   from construction_information_result where (datelabel between '${range[0]}' and '${range[1]}') group by hour`, (err, data) => {
+  //       if (err) {
+  //         reject();
+  //         res.status(200).json({
+  //           data: null,
+  //           errMsg: "施工信息计算出错"
+  //         })
+  //       } else {
+  //         final.working.hourDivided = data.map(row => {
+  //           const spittingInfo = Object.values(row);
+  //           return {
+  //             key: spittingInfo[0],
+  //             value: spittingInfo[1]
+  //           }
+  //         })
+  //         resolve();
+  //       }
+  //     })
+  // })
+
+  // const p5 = new Promise((resolve, reject) => {
+  //   mysql.connection.query(`select first_class, third_class, ROUND(sum(third_class_ratio) / ${length},2) ratio
+  //   from facility_information_result where third_class != 'all' and (datelabel between '${range[0]}' and '${range[1]}') group by third_class, first_class;`, (err, data) => {
+  //       if (err) {
+  //         reject();
+  //         res.status(200).json({
+  //           data: null,
+  //           errMsg: "设备信息计算出错"
+  //         })
+  //       } else {
+  //         final.equip.thirdClass = lodash.groupBy(data, 'first_class');
+  //         resolve();
+  //       }
+  //     })
+  // })
+
+  // const p6 = new Promise((resolve, reject) => {
+  //   mysql.connection.query(`select first_class, ROUND(sum(third_class_ratio) / ${length},2) ratio
+  //   from facility_information_result where third_class = 'all' and (datelabel between '${range[0]}' and '${range[1]}') group by first_class;`, (err, data) => {
+  //       if (err) {
+  //         reject();
+  //         res.status(200).json({
+  //           data: null,
+  //           errMsg: "设备信息计算出错"
+  //         })
+  //       } else {
+  //         final.equip.firstClass = data.map(item => {
+  //           const info = Object.values(item);
+  //           return {
+  //             key: info[0],
+  //             value: info[1]
+  //           }
+  //         })
+  //         resolve();
+  //       }
+  //     })
+  // })
+
   const p1 = new Promise((resolve, reject) => {
-    mysql.connection.query(`select 
-    sum(type_comm) type_comm, sum(type_net) type_net, sum(type_other) type_other, sum(type_signal) type_signal, 
-    sum(state_closed) state_closed, sum(state_fixed) state_fixed, sum(state_new) state_new, sum(state_processed) state_processed 
-    from breakdown_facility_result where (datelabel between '${range[0]}' and '${range[1]}') and hour = '全天'`, (err, data) => {
-        if (err) {
-          reject();
-          res.status(200).json({
-            data: null,
-            errMsg: "故障信息计算出错"
-          })
-        } else {
-          const info = Object.entries(data[0]);
-          final.fault.faultType = info.slice(0, 4);
-          final.fault.faultHandle = info.slice(4);
-          resolve();
-        }
-      })
-  })
-
-  const p2 = new Promise((resolve, reject) => {
-    mysql.connection.query(`select 
-    hour, sum(line1) line1, sum(line2) line2, sum(line3) line3, sum(line4) line4, sum(line5) line5, sum(line6) line6, sum(line7) line7, sum(line8) line8, sum(line9) line9, sum(line10) line10, sum(line11) line11, sum(line12) line12, sum(line13) line13, sum(line14) line14, sum(line15) line15, sum(line16) line16, sum(line17) line17
-    from breakdown_facility_result where (datelabel between '${range[0]}' and '${range[1]}') group by hour`, (err, data) => {
-        if (err) {
-          reject()
-          res.status(200).json({
-            data: null,
-            errMsg: "故障信息计算出错"
-          })
-        } else {
-          final.fault.hourDivided = data.map(row => {
-            const spittingInfo = Object.values(row);
-            return {
-              key: spittingInfo[0],
-              value: lodash.reduce(spittingInfo.slice(1), (sum, n) => {
-                return sum + n;
-              }, 0)
-            }
-          });
-          final.fault.lineDivided = lodash.find(data, { hour: '全天' });
-          resolve();
-        }
-      })
-  })
-
-  const p3 = new Promise((resolve, reject) => {
-    mysql.connection.query(`select 
-    sum(construction_reach_ratio)/${length} reachRatio, sum(construction_hour_ratio)/${length} hourRatio, sum(construction_update_ratio)/${length} updateRatio, sum(construction_illegal) illegal, 
-    sum(line1) line1, sum(line2) line2, sum(line3) line3, sum(line4) line4, sum(line5) line5, sum(line6) line6, sum(line7) line7, sum(line8) line8, sum(line9) line9, sum(line10) line10, sum(line11) line11, sum(line12) line12, sum(line13) line13, sum(line14) line14, sum(line15) line15, sum(line16) line16, sum(line17) line17
-    from construction_information_result where (datelabel between '${range[0]}' and '${range[1]}') and hour = '全天'`, (err, data) => {
-        if (err) {
-          reject()
-          res.status(200).json({
-            data: null,
-            errMsg: "施工信息计算出错"
-          })
-        } else {
-          const info = Object.entries(data[0]);
-          final.working.reachRatio = info[0][1];
-          final.working.hourRatio = info[1][1];
-          final.working.updateRatio = info[2][1];
-          final.working.illegal = info[3][1];
-          final.working.lineDivided = info.slice(4);
-          resolve();
-        }
-      })
-  })
-
-  const p4 = new Promise((resolve, reject) => {
-    mysql.connection.query(`select hour, sum(construction_num) constructionNum
-    from construction_information_result where (datelabel between '${range[0]}' and '${range[1]}') group by hour`, (err, data) => {
-        if (err) {
-          reject();
-          res.status(200).json({
-            data: null,
-            errMsg: "施工信息计算出错"
-          })
-        } else {
-          final.working.hourDivided = data.map(row => {
-            const spittingInfo = Object.values(row);
-            return {
-              key: spittingInfo[0],
-              value: spittingInfo[1]
-            }
-          })
-          resolve();
-        }
-      })
-  })
-
-  const p5 = new Promise((resolve, reject) => {
-    mysql.connection.query(`select first_class, third_class, ROUND(sum(third_class_ratio) / ${length},2) ratio
-    from facility_information_result where third_class != 'all' and (datelabel between '${range[0]}' and '${range[1]}') group by third_class, first_class;`, (err, data) => {
-        if (err) {
-          reject();
-          res.status(200).json({
-            data: null,
-            errMsg: "设备信息计算出错"
-          })
-        } else {
-          final.equip.thirdClass = lodash.groupBy(data, 'first_class');
-          resolve();
-        }
-      })
-  })
-
-  const p6 = new Promise((resolve, reject) => {
-    mysql.connection.query(`select first_class, ROUND(sum(third_class_ratio) / ${length},2) ratio
-    from facility_information_result where third_class = 'all' and (datelabel between '${range[0]}' and '${range[1]}') group by first_class;`, (err, data) => {
-        if (err) {
-          reject();
-          res.status(200).json({
-            data: null,
-            errMsg: "设备信息计算出错"
-          })
-        } else {
-          final.equip.firstClass = data.map(item => {
-            const info = Object.values(item);
-            return {
-              key: info[0],
-              value: info[1]
-            }
-          })
-          resolve();
-        }
-      })
-  })
-
-  const p7 = new Promise((resolve, reject) => {
-    mysql.connection.query(`select first_class, third_class, ROUND(sum(third_class_ratio) / ${length},2) ratio
-    from material_information_result where third_class != 'all' and (datelabel between '${range[0]}' and '${range[1]}') group by third_class, first_class;`, (err, data) => {
+    mysql.connection.query(`select type, staut, sum(number) ratio
+    from material_information_result where (datelabel between '${range[0]}' and '${range[1]}') group by type, staut order by type;`, (err, data) => {
         if (err) {
           reject();
           res.status(200).json({
@@ -289,15 +271,15 @@ app.get('/getCalcData', (req, res) => {
             errMsg: "物资信息计算出错"
           })
         } else {
-          final.material.thirdClass = lodash.groupBy(data, 'first_class');
+          final.material = lodash.groupBy(data, 'type');
           resolve();
         }
       })
   })
 
-  const p8 = new Promise((resolve, reject) => {
-    mysql.connection.query(`select hour, ROUND(sum(duration) / ${length},2) duration
-    from polling_information_result where (datelabel between '${range[0]}' and '${range[1]}') group by hour`, (err, data) => {
+  const p2 = new Promise((resolve, reject) => {
+    mysql.connection.query(`select hour, sum(num) count
+    from polling_num_hour_result where line = 'all' and (datelabel between '${range[0]}' and '${range[1]}') group by hour`, (err, data) => {
         if (err) {
           reject();
           res.status(200).json({
@@ -317,9 +299,9 @@ app.get('/getCalcData', (req, res) => {
       })
   })
 
-  const p9 = new Promise((resolve, reject) => {
-    mysql.connection.query(`select ROUND(sum(frequent) / ${length},2) frequent
-    from polling_information_result where (datelabel between '${range[0]}' and '${range[1]}') and hour = '全天'`, (err, data) => {
+  const p3 = new Promise((resolve, reject) => {
+    mysql.connection.query(`select sum(num) count
+    from polling_num_result where (datelabel between '${range[0]}' and '${range[1]}') and line = 'all'`, (err, data) => {
         if (err) {
           reject();
           res.status(200).json({
@@ -327,13 +309,49 @@ app.get('/getCalcData', (req, res) => {
             errMsg: "巡检信息计算出错"
           })
         } else {
-          final.polling.frequent = data;
+          final.polling.count = data[0].count;
           resolve();
         }
       })
   })
 
-  Promise.all([p1, p2, p3, p4, p5, p6, p7, p8, p9]).then(() => {
+  const p4 = new Promise((resolve, reject) => {
+    mysql.connection.query(`select ROUND(sum(avg_duration) / ${length},2) duration
+    from polling_avg_duration_result where (datelabel between '${range[0]}' and '${range[1]}') and line = 'all'`, (err, data) => {
+        if (err) {
+          reject();
+          res.status(200).json({
+            data: null,
+            errMsg: "巡检信息计算出错"
+          })
+        } else {
+          final.polling.duration = data[0].duration;
+          resolve();
+        }
+      })
+  })
+
+  // const p1 = new Promise((resolve, reject) => {
+  //   mysql.connection.query(`select 
+  //   sum(type_comm) type_comm, sum(type_net) type_net, sum(type_other) type_other, sum(type_signal) type_signal, 
+  //   sum(state_closed) state_closed, sum(state_fixed) state_fixed, sum(state_new) state_new, sum(state_processed) state_processed 
+  //   from breakdown_facility_result where (datelabel between '${range[0]}' and '${range[1]}') and hour = '全天'`, (err, data) => {
+  //       if (err) {
+  //         reject();
+  //         res.status(200).json({
+  //           data: null,
+  //           errMsg: "故障信息计算出错"
+  //         })
+  //       } else {
+  //         const info = Object.entries(data[0]);
+  //         final.fault.faultType = info.slice(0, 4);
+  //         final.fault.faultHandle = info.slice(4);
+  //         resolve();
+  //       }
+  //     })
+  // })
+  Promise.all([p1, p2, p3, p4]).then(() => {
+  // Promise.all([p1, p2, p3, p4, p5, p6, p7, p8, p9]).then(() => {
     res.status(200).json({
       data: final,
       errMsg: null
