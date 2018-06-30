@@ -8,7 +8,7 @@ const fs = require('fs');
 const ejs = require('ejs');
 
 const app = express();
- 
+
 app.use(cookieParser());
 app.engine('html', ejs.__express);
 app.set('view engine', 'html');
@@ -26,18 +26,18 @@ app.post('/login', function (req, res) {
       })
     } else {
       const target = lodash.find(data, { userName, password });
-      if(target) {
+      if (target) {
         const token = new Date().getTime();
-        res.cookie('token', token)
+        res.cookie('token', token);
         mysql.connection.query(`update user set token = ${token} where userName = '${target.userName}'`, (err, data) => {
-          if(err) {
+          if (err) {
             res.status(200).json({
               data: null,
               errMsg: "获取用户数据出错"
             })
           } else {
             res.status(200).json({
-              data: {userName},
+              data: { userName },
               errMsg: null
             })
           }
@@ -53,6 +53,15 @@ app.post('/login', function (req, res) {
 });
 
 app.get('/getResultTables', (req, res) => {
+  if(!checkAuth(req, res)) {
+    res.status(200).json({
+      data: null,
+      code: 401,
+      errMsg: "登录过期"
+    })
+
+    return
+  }
   mysql.connection.query("show tables", (err, data) => {
     if (err) {
       res.status(200).json({
@@ -69,6 +78,15 @@ app.get('/getResultTables', (req, res) => {
 })
 
 app.get('/getData', (req, res) => {
+  if(!checkAuth(req, res)) {
+    res.status(200).json({
+      data: null,
+      code: 401,
+      errMsg: "登录过期"
+    })
+
+    return
+  }
   const { table, timeRange, keyword, field } = req.query;
   const range = timeRange.split(',');
   mysql.connection.query(`select * from ${req.query.table} where (date between '${range[0]}' and '${range[1]}') and ${field} like '%${keyword || ''}%'`, (err, data) => {
@@ -87,6 +105,15 @@ app.get('/getData', (req, res) => {
 })
 
 app.get('/getCalcData', (req, res) => {
+  if(!checkAuth(req, res)) {
+    res.status(200).json({
+      data: null,
+      code: 401,
+      errMsg: "登录过期"
+    })
+
+    return
+  }
   const { timeRange } = req.query;
   const range = timeRange.split(',');
   const length = (new Date(range[1]) - new Date(range[0])) / 3600 / 24 / 1000;
@@ -290,6 +317,15 @@ app.get('/getCalcData', (req, res) => {
 })
 
 app.post('/updateData', (req, res) => {
+  if(!checkAuth(req, res)) {
+    res.status(200).json({
+      data: null,
+      code: 401,
+      errMsg: "登录过期"
+    })
+
+    return
+  }
   const { selectedTable, editingItem, value, editor } = req.body;
   mysql.connection.query(`update ${selectedTable} set ${editingItem.field} = ${value} where id=${editingItem.id}`, (err, data) => {
     if (err) {
@@ -299,7 +335,7 @@ app.post('/updateData', (req, res) => {
       })
     } else {
       mysql.connection.query(`insert into log (time, tableName, editer) values('${new Date().toLocaleString()}', '${selectedTable}', '${editor}')`, (err, value) => {
-        if(err) {
+        if (err) {
           res.status(200).json({
             data: null,
             errMsg: "更新日志数据出错"
@@ -315,9 +351,18 @@ app.post('/updateData', (req, res) => {
   })
 })
 
-app.get('/getLog', (req, res) => { 
+app.get('/getLog', (req, res) => {
+  if(!checkAuth(req, res)) {
+    res.status(200).json({
+      data: null,
+      code: 401,
+      errMsg: "登录过期"
+    })
+
+    return
+  }
   mysql.connection.query(`select * from log`, (err, data) => {
-    if(err) {
+    if (err) {
       res.status(200).json({
         data: null,
         errMsg: "获取日志出错"
@@ -334,9 +379,18 @@ app.get('/getLog', (req, res) => {
       })
     }
   })
-})  
+})
 
 app.post('/screenshot', async (req, res) => {
+  if(!checkAuth(req, res)) {
+    res.status(200).json({
+      data: null,
+      code: 401,
+      errMsg: "登录过期"
+    })
+
+    return
+  }
   const { content } = req.body;
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -349,7 +403,7 @@ app.post('/screenshot', async (req, res) => {
       document.querySelectorAll('.highcharts-credits').forEach(item => item.style.display = 'none');
       document.body.innerHTML = \`${content}\`
     `);
-  await page.screenshot({path: 'report.png'});
+  await page.screenshot({ path: 'report.png' });
   await browser.close();
 
   res.status(200).json({
@@ -360,16 +414,16 @@ app.post('/screenshot', async (req, res) => {
 
 app.get('/download', (req, res) => {
   res.set({
-    "Content-type":"application/octet-stream",
-    "Content-Disposition":"attachment;filename=report.png"
+    "Content-type": "application/octet-stream",
+    "Content-Disposition": "attachment;filename=report.png"
   });
   const filestream = fs.createReadStream('./report.png');
-    filestream.on('data', function(chunk) {
-      res.write(chunk);
-    });
-    filestream.on('end', function() {
-      res.end();
-    });
+  filestream.on('data', function (chunk) {
+    res.write(chunk);
+  });
+  filestream.on('end', function () {
+    res.end();
+  });
 })
 
 app.get('/backdoor', (req, res) => {
@@ -378,25 +432,14 @@ app.get('/backdoor', (req, res) => {
   })
 })
 
-app.get('/checkAuth', (req, res) => {
-  const { userName } = req.query;
-  // const now = new Date();
-  //     const last = (data.token && new Date(data.token)) || 0;
-  //     if(now - last < 3600000) {
-  //       res.status(200).json({
-  //         data: true,
-  //         errMsg: null
-  //       })
-  //     } else {
-  //       res.status(200).json({
-  //         data: null,
-  //         errMsg: "登录过期"
-  //       })
-  //     }
-})
+function checkAuth(req, res) {
+  const now = new Date();
+  const last = req.cookies.token;
+  return now - last < 3600000;
+}
 
 app.get('*', (req, res) => {
   res.status(200).render('index.html');
 })
 
-app.listen(3000)
+app.listen(3000);
