@@ -77,6 +77,31 @@ app.get('/getResultTables', (req, res) => {
   })
 })
 
+app.get('/getOriginTables', (req, res) => {
+  if(!checkAuth(req, res)) {
+    res.status(200).json({
+      data: null,
+      code: 401,
+      errMsg: "登录过期"
+    })
+
+    return
+  }
+  mysql.connection.query("show tables", (err, data) => {
+    if (err) {
+      res.status(200).json({
+        data: null,
+        errMsg: "获取元数据表出错"
+      })
+    } else {
+      res.status(200).json({
+        data: lodash.filter(data, o => o.Tables_in_db_mt.indexOf('origin') > -1).map(item => item.Tables_in_db_mt),
+        errMsg: null
+      })
+    }
+  })
+})
+
 app.get('/getData', (req, res) => {
   if(!checkAuth(req, res)) {
     res.status(200).json({
@@ -89,7 +114,7 @@ app.get('/getData', (req, res) => {
   }
   const { table, timeRange, keyword, field } = req.query;
   const range = timeRange.split(',');
-  mysql.connection.query(`select * from ${req.query.table} where (date between '${range[0]}' and '${range[1]}') and ${field} like '%${keyword || ''}%'`, (err, data) => {
+  mysql.connection.query(`select * from ${req.query.table} where (datelabel between '${range[0]}' and '${range[1]}') and ${field} like '%${keyword || ''}%'`, (err, data) => {
     if (err) {
       res.status(200).json({
         data: null,
@@ -129,7 +154,7 @@ app.get('/getCalcData', (req, res) => {
     mysql.connection.query(`select 
     sum(type_comm) type_comm, sum(type_net) type_net, sum(type_other) type_other, sum(type_signal) type_signal, 
     sum(state_closed) state_closed, sum(state_fixed) state_fixed, sum(state_new) state_new, sum(state_processed) state_processed 
-    from breakdown_facility_result where (date between '${range[0]}' and '${range[1]}') and hour = '全天'`, (err, data) => {
+    from breakdown_facility_result where (datelabel between '${range[0]}' and '${range[1]}') and hour = '全天'`, (err, data) => {
         if (err) {
           reject();
           res.status(200).json({
@@ -148,7 +173,7 @@ app.get('/getCalcData', (req, res) => {
   const p2 = new Promise((resolve, reject) => {
     mysql.connection.query(`select 
     hour, sum(line1) line1, sum(line2) line2, sum(line3) line3, sum(line4) line4, sum(line5) line5, sum(line6) line6, sum(line7) line7, sum(line8) line8, sum(line9) line9, sum(line10) line10, sum(line11) line11, sum(line12) line12, sum(line13) line13, sum(line14) line14, sum(line15) line15, sum(line16) line16, sum(line17) line17
-    from breakdown_facility_result where (date between '${range[0]}' and '${range[1]}') group by hour`, (err, data) => {
+    from breakdown_facility_result where (datelabel between '${range[0]}' and '${range[1]}') group by hour`, (err, data) => {
         if (err) {
           reject()
           res.status(200).json({
@@ -175,7 +200,7 @@ app.get('/getCalcData', (req, res) => {
     mysql.connection.query(`select 
     sum(construction_reach_ratio)/${length} reachRatio, sum(construction_hour_ratio)/${length} hourRatio, sum(construction_update_ratio)/${length} updateRatio, sum(construction_illegal) illegal, 
     sum(line1) line1, sum(line2) line2, sum(line3) line3, sum(line4) line4, sum(line5) line5, sum(line6) line6, sum(line7) line7, sum(line8) line8, sum(line9) line9, sum(line10) line10, sum(line11) line11, sum(line12) line12, sum(line13) line13, sum(line14) line14, sum(line15) line15, sum(line16) line16, sum(line17) line17
-    from construction_information_result where (date between '${range[0]}' and '${range[1]}') and hour = '全天'`, (err, data) => {
+    from construction_information_result where (datelabel between '${range[0]}' and '${range[1]}') and hour = '全天'`, (err, data) => {
         if (err) {
           reject()
           res.status(200).json({
@@ -196,7 +221,7 @@ app.get('/getCalcData', (req, res) => {
 
   const p4 = new Promise((resolve, reject) => {
     mysql.connection.query(`select hour, sum(construction_num) constructionNum
-    from construction_information_result where (date between '${range[0]}' and '${range[1]}') group by hour`, (err, data) => {
+    from construction_information_result where (datelabel between '${range[0]}' and '${range[1]}') group by hour`, (err, data) => {
         if (err) {
           reject();
           res.status(200).json({
@@ -218,7 +243,7 @@ app.get('/getCalcData', (req, res) => {
 
   const p5 = new Promise((resolve, reject) => {
     mysql.connection.query(`select first_class, third_class, ROUND(sum(third_class_ratio) / ${length},2) ratio
-    from facility_information_result where third_class != 'all' and (date between '${range[0]}' and '${range[1]}') group by third_class, first_class;`, (err, data) => {
+    from facility_information_result where third_class != 'all' and (datelabel between '${range[0]}' and '${range[1]}') group by third_class, first_class;`, (err, data) => {
         if (err) {
           reject();
           res.status(200).json({
@@ -234,7 +259,7 @@ app.get('/getCalcData', (req, res) => {
 
   const p6 = new Promise((resolve, reject) => {
     mysql.connection.query(`select first_class, ROUND(sum(third_class_ratio) / ${length},2) ratio
-    from facility_information_result where third_class = 'all' and (date between '${range[0]}' and '${range[1]}') group by first_class;`, (err, data) => {
+    from facility_information_result where third_class = 'all' and (datelabel between '${range[0]}' and '${range[1]}') group by first_class;`, (err, data) => {
         if (err) {
           reject();
           res.status(200).json({
@@ -256,7 +281,7 @@ app.get('/getCalcData', (req, res) => {
 
   const p7 = new Promise((resolve, reject) => {
     mysql.connection.query(`select first_class, third_class, ROUND(sum(third_class_ratio) / ${length},2) ratio
-    from material_information_result where third_class != 'all' and (date between '${range[0]}' and '${range[1]}') group by third_class, first_class;`, (err, data) => {
+    from material_information_result where third_class != 'all' and (datelabel between '${range[0]}' and '${range[1]}') group by third_class, first_class;`, (err, data) => {
         if (err) {
           reject();
           res.status(200).json({
@@ -272,7 +297,7 @@ app.get('/getCalcData', (req, res) => {
 
   const p8 = new Promise((resolve, reject) => {
     mysql.connection.query(`select hour, ROUND(sum(duration) / ${length},2) duration
-    from polling_information_result where (date between '${range[0]}' and '${range[1]}') group by hour`, (err, data) => {
+    from polling_information_result where (datelabel between '${range[0]}' and '${range[1]}') group by hour`, (err, data) => {
         if (err) {
           reject();
           res.status(200).json({
@@ -294,7 +319,7 @@ app.get('/getCalcData', (req, res) => {
 
   const p9 = new Promise((resolve, reject) => {
     mysql.connection.query(`select ROUND(sum(frequent) / ${length},2) frequent
-    from polling_information_result where (date between '${range[0]}' and '${range[1]}') and hour = '全天'`, (err, data) => {
+    from polling_information_result where (datelabel between '${range[0]}' and '${range[1]}') and hour = '全天'`, (err, data) => {
         if (err) {
           reject();
           res.status(200).json({
