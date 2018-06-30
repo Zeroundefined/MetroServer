@@ -349,10 +349,6 @@ app.post('/screenshot', async (req, res) => {
       document.querySelectorAll('.highcharts-credits').forEach(item => item.style.display = 'none');
       document.body.innerHTML = \`${content}\`
     `);
-  // await page.pdf({
-  //   path: 'report.pdf',
-  //   format: 'letter'
-  // });
   await page.screenshot({path: 'report.png'});
   await browser.close();
 
