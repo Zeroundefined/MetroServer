@@ -130,15 +130,15 @@ app.get('/getData', (req, res) => {
 })
 
 app.get('/getCalcData', (req, res) => {
-  // if(!checkAuth(req, res)) {
-  //   res.status(200).json({
-  //     data: null,
-  //     code: 401,
-  //     errMsg: "登录过期"
-  //   })
+  if(!checkAuth(req, res)) {
+    res.status(200).json({
+      data: null,
+      code: 401,
+      errMsg: "登录过期"
+    })
 
-  //   return
-  // }
+    return
+  }
   const { timeRange } = req.query;
   const range = timeRange.split(',');
   const length = (new Date(range[1]) - new Date(range[0])) / 3600 / 24 / 1000;
@@ -235,6 +235,8 @@ app.get('/getCalcData', (req, res) => {
           workingTotal = lodash.find(data, {type: '计划完成施工'});
           const workingActual = lodash.find(data, {type: '实际完成施工'});
           final.working.reachRatio = workingActual / workingTotal;
+          final.working.workingActual = workingActual;
+          final.working.workingTotal = workingTotal;
           resolve();
         }
       })
@@ -547,12 +549,12 @@ app.post('/screenshot', async (req, res) => {
 
     return
   }
-  const { content } = req.body;
+  const { content, width, height } = req.body;
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   page.setViewport({
-    width: 1200,
-    height: 4400
+    width,
+    height: height - 60
   })
   await page.goto('http://www.baidu.com');
   await page.evaluate(`
