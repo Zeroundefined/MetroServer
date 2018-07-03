@@ -371,7 +371,7 @@ app.get('/getCalcData', (req, res) => {
   })
 
   const p14 = new Promise((resolve, reject) => {
-    mysql.connection.query(`select sum(num) count
+    mysql.connection.query(`select sum(num_1) count
     from breakdown_facility_01_result where (datelabel between '${range[0]}' and '${range[1]}');`, (err, data) => {
         if (err) {
           reject();
@@ -466,7 +466,55 @@ app.get('/getCalcData', (req, res) => {
       })
   })
 
-  Promise.all([p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19]).then(() => {
+  const p20 = new Promise((resolve, reject) => {
+    mysql.connection.query(`select *
+    from report_information_breakdown where (month between '${range[0]}' and '${range[1]}')`, (err, data) => {
+        if (err) {
+          reject();
+          res.status(200).json({
+            data: null,
+            errMsg: "故障信息计算出错"
+          })
+        } else {
+          final.fault.informations = data;
+          resolve();
+        }
+      })
+  })
+
+  const p21 = new Promise((resolve, reject) => {
+    mysql.connection.query(`select *
+    from report_information_construction where (month between '${range[0]}' and '${range[1]}')`, (err, data) => {
+        if (err) {
+          reject();
+          res.status(200).json({
+            data: null,
+            errMsg: "施工信息计算出错"
+          })
+        } else {
+          final.working.informations = data;
+          resolve();
+        }
+      })
+  })
+
+  const p22 = new Promise((resolve, reject) => {
+    mysql.connection.query(`select *
+    from report_information_polling where (month between '${range[0]}' and '${range[1]}')`, (err, data) => {
+        if (err) {
+          reject();
+          res.status(200).json({
+            data: null,
+            errMsg: "巡检信息计算出错"
+          })
+        } else {
+          final.polling.informations = data;
+          resolve();
+        }
+      })
+  })
+
+  Promise.all([p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15, p16, p17, p18, p19,p20, p21,p22]).then(() => {
     res.status(200).json({
       data: final,
       errMsg: null
