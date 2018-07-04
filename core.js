@@ -377,7 +377,7 @@ app.get('/getCalcData', (req, res) => {
           reject();
           res.status(200).json({
             data: null,
-            errMsg: "故障信息计算出错"
+            errMsg: "1故障信息计算出错"
           })
         } else {
           final.fault.delayCount = data[0].count;
@@ -393,7 +393,7 @@ app.get('/getCalcData', (req, res) => {
           reject();
           res.status(200).json({
             data: null,
-            errMsg: "故障信息计算出错"
+            errMsg: "2故障信息计算出错"
           })
         } else {
           final.fault.lostCount = data[0].count;
@@ -409,7 +409,7 @@ app.get('/getCalcData', (req, res) => {
           reject();
           res.status(200).json({
             data: null,
-            errMsg: "故障信息计算出错"
+            errMsg: "3故障信息计算出错"
           })
         } else {
           final.fault.faultType = data;
@@ -425,7 +425,7 @@ app.get('/getCalcData', (req, res) => {
           reject();
           res.status(200).json({
             data: null,
-            errMsg: "故障信息计算出错"
+            errMsg: "4故障信息计算出错"
           })
         } else {
           final.fault.faultHandle = data;
@@ -441,7 +441,7 @@ app.get('/getCalcData', (req, res) => {
           reject();
           res.status(200).json({
             data: null,
-            errMsg: "故障信息计算出错"
+            errMsg: "5故障信息计算出错"
           })
         } else {
           final.fault.hourDivided = data;
@@ -457,7 +457,7 @@ app.get('/getCalcData', (req, res) => {
           reject();
           res.status(200).json({
             data: null,
-            errMsg: "故障信息计算出错"
+            errMsg: "6故障信息计算出错"
           })
         } else {
           final.fault.lineDivided = data;
@@ -473,7 +473,7 @@ app.get('/getCalcData', (req, res) => {
           reject();
           res.status(200).json({
             data: null,
-            errMsg: "故障信息计算出错"
+            errMsg: "7故障信息计算出错"
           })
         } else {
           final.fault.informations = data;
