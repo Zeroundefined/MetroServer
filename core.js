@@ -625,18 +625,17 @@ app.post('/screenshot', async (req, res) => {
     return
   }
   const { content, width, height } = req.body;
-  const browser = await puppeteer.launch();
-  console.log(browser);
+  const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
   const page = await browser.newPage();
   console.log(page);
   page.setViewport({
     width,
-    height: height - 60
+    height
   })
   await page.goto('http://www.baidu.com');
   await page.evaluate(`
+      document.body.innerHTML = \`${content}\`;
       document.querySelectorAll('.highcharts-credits').forEach(item => item.style.display = 'none');
-      document.body.innerHTML = \`${content}\`
     `);
   await page.screenshot({ path: 'report.png' });
   await browser.close();
