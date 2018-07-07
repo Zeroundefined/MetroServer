@@ -598,7 +598,7 @@ app.post('/screenshot', async (req, res) => {
     return
   }
   const { content, width, height } = req.body;
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
   const page = await browser.newPage();
   page.setViewport({
     width,
