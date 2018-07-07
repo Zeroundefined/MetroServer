@@ -129,6 +129,33 @@ app.get('/getData', (req, res) => {
   })
 })
 
+app.get('/getReportData', (req, res) => {
+  if (!checkAuth(req, res)) {
+    res.status(200).json({
+      data: null,
+      code: 401,
+      errMsg: "登录过期"
+    })
+
+    return
+  }
+  const { table, timeRange, keyword, field } = req.query;
+  const range = timeRange.split(',');
+  mysql.connection.query(`select * from ${req.query.table} where (month between '${range[0]}' and '${range[1]}') and ${field} like '%${keyword || ''}%'`, (err, data) => {
+    if (err) {
+      res.status(200).json({
+        data: null,
+        errMsg: "获取数据出错"
+      })
+    } else {
+      res.status(200).json({
+        data,
+        errMsg: null
+      })
+    }
+  })
+})
+
 app.get('/getCalcData', (req, res) => {
   if(!checkAuth(req, res)) {
     res.status(200).json({
@@ -468,7 +495,7 @@ app.get('/getCalcData', (req, res) => {
 
   const p20 = new Promise((resolve, reject) => {
     mysql.connection.query(`select *
-    from report_information_breakdown where (month between '${range[0]}' and '${range[1]}')`, (err, data) => {
+    from report_information_breakdown_result where (month between '${range[0]}' and '${range[1]}')`, (err, data) => {
         if (err) {
           reject();
           res.status(200).json({
@@ -484,7 +511,7 @@ app.get('/getCalcData', (req, res) => {
 
   const p21 = new Promise((resolve, reject) => {
     mysql.connection.query(`select *
-    from report_information_construction where (month between '${range[0]}' and '${range[1]}')`, (err, data) => {
+    from report_information_construction_result where (month between '${range[0]}' and '${range[1]}')`, (err, data) => {
         if (err) {
           reject();
           res.status(200).json({
@@ -500,7 +527,7 @@ app.get('/getCalcData', (req, res) => {
 
   const p22 = new Promise((resolve, reject) => {
     mysql.connection.query(`select *
-    from report_information_polling where (month between '${range[0]}' and '${range[1]}')`, (err, data) => {
+    from report_information_polling_result where (month between '${range[0]}' and '${range[1]}')`, (err, data) => {
         if (err) {
           reject();
           res.status(200).json({
@@ -600,6 +627,7 @@ app.post('/screenshot', async (req, res) => {
   const { content, width, height } = req.body;
   const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
   const page = await browser.newPage();
+  console.log(page);
   page.setViewport({
     width,
     height: height - 60
