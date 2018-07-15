@@ -206,7 +206,7 @@ app.get('/getCalcData', (req, res) => {
           })
         } else {
           final.polling.hourDivided = data.map(item => {
-            const info = Object.values(item);
+            const info = Object.values(item); 
             return {
               key: info[0],
               value: info[1]
@@ -560,7 +560,7 @@ app.post('/updateData', (req, res) => {
     return
   }
   const { selectedTable, editingItem, value, editor } = req.body;
-  mysql.connection.query(`update ${selectedTable} set ${editingItem.field} = ${value} where id=${editingItem.id}`, (err, data) => {
+  mysql.connection.query(`update ${selectedTable} set ${editingItem.field} = '${value}' where id=${editingItem.id}`, (err, data) => {
     if (err) {
       res.status(200).json({
         data: null,
