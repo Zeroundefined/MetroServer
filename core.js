@@ -632,7 +632,7 @@ app.post('/screenshot', async (req, res) => {
     width,
     height
   })
-  await page.goto('http://www.baidu.com');
+  await page.goto('about:blank');
   await page.evaluate(`
       document.body.innerHTML = \`${content}\`;
       document.querySelectorAll('.highcharts-credits').forEach(item => item.style.display = 'none');
