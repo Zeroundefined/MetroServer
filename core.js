@@ -632,13 +632,18 @@ app.post('/screenshot', async (req, res) => {
     width,
     height
   })
-  await page.goto('about:blank');
-  await page.evaluate(`
-      document.body.innerHTML = \`${content}\`;
-      document.querySelectorAll('.highcharts-credits').forEach(item => item.style.display = 'none');
-    `);
-  await page.screenshot({ path: 'report.png' });
-  await browser.close();
+  try {
+    await page.goto('about:blank');
+    await page.evaluate(`
+        document.body.innerHTML = \`${content}\`;
+        document.querySelectorAll('.highcharts-credits').forEach(item => item.style.display = 'none');
+      `);
+    await page.screenshot({ path: 'report.png' });
+    await browser.close();
+    
+  } catch (error) {
+    console.log(error);  
+  }
 
   res.status(200).json({
     data: true,
